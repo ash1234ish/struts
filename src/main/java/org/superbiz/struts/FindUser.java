@@ -17,15 +17,35 @@
  */
 package org.superbiz.struts;
 
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import java.util.Properties;
 
+@Component
 public class FindUser {
 
-    private int id;
+    private long id;
     private String errorMessage;
+
+    public FindUser(UserService userService) {
+        this.userService = userService;
+    }
+
     private User user;
+    private UserService userService;
+
+    public FindUser() {
+    }
+
+    public FindUser(Long id, String errorMessage, User user, UserService userService) {
+        this.id = id;
+        this.errorMessage = errorMessage;
+        this.user = user;
+        this.userService = userService;
+    }
 
     public User getUser() {
         return user;
@@ -43,24 +63,25 @@ public class FindUser {
         this.errorMessage = errorMessage;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
+    @Transactional
     public String execute() {
 
         try {
-            UserService service = null;
-            Properties props = new Properties();
-            props.put(Context.INITIAL_CONTEXT_FACTORY,
-                "org.apache.openejb.core.LocalInitialContextFactory");
-            Context ctx = new InitialContext(props);
-            service = (UserService) ctx.lookup("UserServiceImplLocal");
-            this.user = service.find(id);
+//            UserService service = null;
+//            Properties props = new Properties();
+//            props.put(Context.INITIAL_CONTEXT_FACTORY,
+//                "org.apache.openejb.core.LocalInitialContextFactory");
+//            Context ctx = new InitialContext(props);
+//            service = (UserService) ctx.lookup("UserServiceImplLocal");
+            this.user = userService.find(id);
         } catch (Exception e) {
             this.errorMessage = e.getMessage();
             return "failure";
